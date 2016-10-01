@@ -18,11 +18,12 @@ namespace OpenKonnect
 
         public void Start()
         {
-            var confFileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), "openkonnect.conf");
+            var appConfig = new AppConfig();
+
+            var confFileName = Path.Combine(Path.GetDirectoryName(System.Reflection.Assembly.GetEntryAssembly().Location), appConfig.CardReaderConfigurationFileName);
             var confParser = new Parser();
             log.Info(string.Format("Parsing conf file {0}", confFileName));
             var entries = confParser.Parse(confFileName);
-            var appConfig = new AppConfig();
 
             sched = new SchedulerScarichi(
                 appConfig.FetchDefaultInterval_sec,

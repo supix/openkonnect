@@ -11,6 +11,7 @@ namespace OpenKonnect.Configuration
         private readonly string connectionString = Convert.ToString(ConfigurationManager.AppSettings["ConnectionString"]);
         private readonly bool fakeMode = Convert.ToBoolean(ConfigurationManager.AppSettings["FakeMode"]);
         private readonly bool safeMode = Convert.ToBoolean(ConfigurationManager.AppSettings["SafeMode"]);
+        private readonly string cardReaderConfigurationFileName = Convert.ToString(ConfigurationManager.AppSettings["CardReaderConfigurationFileName"]);
         private readonly int garbageCollectorInterval_sec = Convert.ToInt32(ConfigurationManager.AppSettings["GarbageCollectorInterval_sec"]);
         private readonly int fetchDefaultInterval_sec = Convert.ToInt32(ConfigurationManager.AppSettings["FetchDefaultInterval_sec"]);
         private readonly bool updateClocks_Active = Convert.ToBoolean(ConfigurationManager.AppSettings["UpdateClocks_Active"]);
@@ -33,6 +34,11 @@ namespace OpenKonnect.Configuration
             get { return safeMode; }
         }
 
+        public string CardReaderConfigurationFileName
+        {
+            get { return cardReaderConfigurationFileName; }
+        }
+        
         public int GarbageCollectorInterval_sec
         {
             get { return garbageCollectorInterval_sec; }
