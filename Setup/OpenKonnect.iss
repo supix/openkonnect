@@ -3,7 +3,7 @@
 
 #define MyAppName "OpenKonnect"
 #define MyAppVersion "1.0.0"
-#define MyAppPublisher "supix"
+#define MyAppPublisher "esposito.marce@gmail.com"
 #define MyAppURL "https://github.com/supix/openkonnect"
 
 [Setup]
@@ -24,9 +24,14 @@ AllowNoIcons=yes
 OutputBaseFilename={#MyAppName}_v{#MyAppVersion}_Setup
 Compression=lzma
 SolidCompression=yes
+LicenseFile= "..\OpenKonnectService\gpl-3.0.txt"
 
 [Languages]
-Name: "italian"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "en"; MessagesFile: "compiler:Default.isl"
+Name: "it"; MessagesFile: "compiler:Languages\Italian.isl"
+Name: "fr"; MessagesFile: "compiler:Languages\French.isl"
+Name: "de"; MessagesFile: "compiler:Languages\German.isl"
+Name: "nl"; MessagesFile: "compiler:Languages\Dutch.isl"
 
 [Files]
 Source: "..\OpenKonnectService\bin\Release\OpenKonnectService.exe"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
