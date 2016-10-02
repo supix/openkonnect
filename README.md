@@ -1,6 +1,6 @@
 # OpenKonnect
 ## Intro
-OpenKonnect is a tool useful to fetch stamps from card-readers in a multi-threaded fashion. It is implemented as Microsoft Windows Service. Available card-readers are listed in a configuration file. OpenKonnect instantiates an independent thread for each card-reader which is up to fetch stamps periodically. Stamps are stored into a DBMS. Moreover, OpenKonnect can take in charge card-reader's clock adjustments as well.
+OpenKonnect is a tool useful to fetch stamps from card-readers in a multi-threaded fashion. It is implemented as Microsoft Windows Service. Available card-readers are listed in a configuration file. OpenKonnect instantiates an independent thread for each card-reader which is up to fetch stamps periodically. Stamps are stored into a DBMS. Moreover, OpenKonnect can take in charge card-reader's clock adjustments as well. Basically, it can handle as many readers as you want.
 
 OpenKonnect supports Kronotech readers and, so far, supports MySql database.
 
@@ -9,7 +9,7 @@ OpenKonnect is released under the [GPL-3.0 license](https://www.gnu.org/licenses
 ## Installation
 * Download [the latest release](https://github.com/supix/openkonnect/releases).
 * Execute the setup.
-* Configure the application (see [Configuration](#OpenKonnect-Configuration)).
+* Configure the application (see the next section).
 * Start OpenKonnect windows service.
 
 ## OpenKonnect Configuration
@@ -23,7 +23,7 @@ All the readers you want to pool have to be listed in the configuration file. By
 R001 reader001.domain.com         192.168.0.1 10 #comments can be also here
 R002 reader002.domain.com         192.168.0.2 10
 R003 reader003.domain.com         192.168.0.3 10:12345
-R003 reader003.domain.com         192.168.0.3 0
+R003 reader003.domain.com         192.168.0.3 0 # this zero-interval defaults to configuration file value
 ...
 ```
 
@@ -35,7 +35,7 @@ Each line contains:
 * possibly a comment
 
 ### Configuring the database
-OpenKonnect stores stamps into a MySql database. After having created the database istance, the table hosting stamps can be created with the following DDL statement:
+OpenKonnect stores stamps into a MySql database. After having created the database instance, the table hosting stamps can be created with the following DDL statement:
 
 ```sql
 CREATE TABLE `stamps` (
@@ -60,10 +60,11 @@ All the other parameters are contained in the configuration file, called `OpenKo
     <!-- connection string of the DB where stamps are stored -->
     <add key="ConnectionString" value="Server=localhost;Database=openkonnect;Uid=openkonnect;Pwd=openkonnect;" />
 
-    <!-- if true, card-readers are not actually contacted, but fake stamps are returned. Useful to test just db connection. -->
+    <!-- if true, card-readers are not actually contacted, but fake stamps are returned. Useful to test
+    just the db connection. -->
     <add key="FakeMode" value="true" />
 
-    <!-- if true, only the first stamp stored in a card-reader is returned on each connection,
+    <!-- if true, only the first stamp stored in a card-reader is returned on each job execution,
     and it is not deleted. Useful to test the application without altering card reader state. 
     Otherwise, all available stamps are fetched and deleted from the reader on each connection. -->
     <add key="SafeMode" value="true" />
@@ -107,7 +108,7 @@ When the service is started, it instantiates a scheduled job for each reader. Jo
 
 When a job starts, all the stored stamps are fetched and marked as deleted (actually, Kronotech readers logically mark stamps as deleted, but they can still be accessed with the proprietary software using the appropriate function). OpenKonnect fetches stamps one-by-one. After a stamp has been fetched it is inserted into the database. Only on successful insertions, the stamp on the reader is deleted and the next one is fetched. This assures that no stamps can be lost in case of database and/or network failures.
 
-When readers' clock adjust-task is active, a further job is instantiated for each reader. Tasks start at the time of day indicated in the configuration file, spread over the indicated time interval (again, to avoid network congestion). The default daytime is 02:02, for the sake of adjusting clocks just after the daylight saving time switch. The task is executed every 86.400 seconds (i.e. every day at the same time).
+When readers' clock adjust-task is active, a further job is instantiated for each reader. Tasks start at the time of day indicated in the configuration file, spread over the indicated time interval (again, to avoid network congestion). The default daytime is 02:02, for the sake of adjusting clocks just after the daylight saving time switch. The task is (by default) executed every 86.400 seconds (i.e. every day at the same time).
 
 ## Log
 During the execution, the service logs about every important information:
@@ -117,7 +118,7 @@ During the execution, the service logs about every important information:
 * service stop/start
 * number of instantiated jobs
 
-The log is configured in the `log4net` section within the configuration file `OpenKonnectService.exe.config`. By default, log can reach a maximum size of 10MB. Then, they rotate and a new file is created. A maximum of 100 files is retained. After enough time, you will find the following configuration files:
+The log is configured in the `log4net` section within the configuration file `OpenKonnectService.exe.config`. By default, log can reach a maximum size of 10MB. Then, they rotate and a new file is created. A maximum of 100 files is retained. After waiting enough time, you will find the following log files:
 ```
 openkonnect.log
 openkonnect.log.1
@@ -139,5 +140,5 @@ The source code is available at https://github.com/supix/openkonnect. OpenKonnec
 * [log4net](https://logging.apache.org/log4net/) library for logging
 * [faker.net.portable](https://github.com/AdmiringWorm/Faker.NET.Portable) library to generate fake stamps data
 
-OpenKonnect - 2016<br/>
-esposito.marce [at] gmail.com.
+OpenKonnect - 2016 - Contact the author at: esposito.marce [at] gmail.com<br/>
+OpenKonnect is provided as is without any guarantees or warranty. In association with the product, the author makes no warranties of any kind, either express or implied. Use of the product by a user is at the user’s risk.
