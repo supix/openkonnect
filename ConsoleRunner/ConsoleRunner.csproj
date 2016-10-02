@@ -7,8 +7,8 @@
     <ProjectGuid>{DAC9571C-E108-4A5B-B4F0-9F6FB72C9A98}</ProjectGuid>
     <OutputType>Exe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>ConsoleTester</RootNamespace>
-    <AssemblyName>ConsoleTester</AssemblyName>
+    <RootNamespace>ConsoleRunner</RootNamespace>
+    <AssemblyName>ConsoleRunner</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <AutoGenerateBindingRedirects>true</AutoGenerateBindingRedirects>
