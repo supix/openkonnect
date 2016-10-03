@@ -18,10 +18,10 @@ All the readers you want to pool have to be listed in the configuration file. By
 # this is a comment
 ; this is a comment as well
 
-R001 reader001.domain.com         192.168.0.1 10 #comments can be also here
-R002 reader002.domain.com         192.168.0.2 10
-R003 reader003.domain.com         192.168.0.3 10:12345 # this reader listens on port 12345, the others on the default port (3000)
-R003 reader003.domain.com         192.168.0.3  0 # this zero-interval defaults to configuration file value
+R001 reader001.domain.com 192.168.0.1       120 # comments can be also here
+R002 reader002.domain.com 192.168.0.2       120
+R003 reader003.domain.com 192.168.0.3:12345 120 # this reader listens on port 12345, the others on the default port (3000)
+R003 reader003.domain.com 192.168.0.3         0 # this zero-interval defaults to configuration file value
 ...
 ```
 
