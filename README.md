@@ -1,6 +1,6 @@
 # OpenKonnect
 ## Intro
-OpenKonnect is a tool useful to fetch stamps from card-readers in a multi-threaded fashion. OpenKonnect instantiates an independent thread for each card-reader it is up to fetch stamps from, periodically and concurrently. Once fetced, stamps are stored into a DBMS in a reliable fashion. Moreover, OpenKonnect can take in charge card-reader's clock adjustments as well. Basically, it can handle as many readers as you want.
+OpenKonnect is a tool useful to fetch stamps from card-readers in a multi-threaded fashion. OpenKonnect instantiates an independent thread for each card-reader it fetches stamps from, periodically and concurrently. Once fetched, stamps are stored into a DBMS in a reliable fashion. Moreover, OpenKonnect can take in charge card-reader's clock adjustments as well. Basically, it can handle as many readers as you want.
 
 ![Kronotech readers](https://github.com/supix/openkonnect/blob/master/AllReaders.jpg)
 
