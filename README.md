@@ -144,4 +144,4 @@ The source code is available at https://github.com/supix/openkonnect. OpenKonnec
 The `Setup` folder contains a [InnoSetup](http://www.jrsoftware.org/isinfo.php) project. Compiling this project the executable installation program is generated.
 
 OpenKonnect - 2016 - Contact the author at: esposito.marce [at] gmail.com<br/>
-OpenKonnect is provided as is without any guarantees or warranty. In association with the product, the author makes no warranties of any kind, either express or implied. Use of the product by a user is at the user’s risk.
+OpenKonnect has nothing to do with Kronotech enterprise. OpenKonnect is provided as is without any guarantees or warranty. In association with the product, the author makes no warranties of any kind, either express or implied. Use of the product by a user is at the user’s risk.
