@@ -1,10 +1,8 @@
 # OpenKonnect
 ## Intro
-OpenKonnect is a tool useful to fetch stamps from card-readers in a multi-threaded fashion. It is implemented as Microsoft Windows Service. Available card-readers are listed in a configuration file. OpenKonnect instantiates an independent thread for each card-reader which is up to fetch stamps periodically. Stamps are stored into a DBMS. Moreover, OpenKonnect can take in charge card-reader's clock adjustments as well. Basically, it can handle as many readers as you want.
+OpenKonnect is a tool useful to fetch stamps from card-readers in a multi-threaded fashion. OpenKonnect instantiates an independent thread for each card-reader it is up to fetch stamps from, periodically and concurrently. Once fetced, stamps are stored into a DBMS in a reliable fashion. Moreover, OpenKonnect can take in charge card-reader's clock adjustments as well. Basically, it can handle as many readers as you want.
 
-OpenKonnect supports Kronotech readers and, so far, supports MySql database.
-
-OpenKonnect is released under the [GPL-3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
+It is implemented as Microsoft Windows Service and uses .NET framework v4.0. OpenKonnect supports Kronotech readers and, so far, MySql database. OpenKonnect is released under the [GPL-3.0 license](https://www.gnu.org/licenses/gpl-3.0.en.html).
 
 ## Installation
 * Download [the latest release](https://github.com/supix/openkonnect/releases).
@@ -14,7 +12,7 @@ OpenKonnect is released under the [GPL-3.0 license](https://www.gnu.org/licenses
 
 ## OpenKonnect Configuration
 ### Readers configuration
-All the readers you want to pool have to be listed in the configuration file. By default, configuration file is called `openkonnect.conf` and is located in the same directory as the application. Each row defines a reader. The syntax is the following.
+All the readers you want to pool have to be listed in the configuration file. By default, configuration file is called `openkonnect.conf` and is located in the same directory as the application. Each row defines a reader. The configuration file syntax is the following.
 
 ```
 # this is a comment
@@ -22,13 +20,13 @@ All the readers you want to pool have to be listed in the configuration file. By
 
 R001 reader001.domain.com         192.168.0.1 10 #comments can be also here
 R002 reader002.domain.com         192.168.0.2 10
-R003 reader003.domain.com         192.168.0.3 10:12345
-R003 reader003.domain.com         192.168.0.3 0 # this zero-interval defaults to configuration file value
+R003 reader003.domain.com         192.168.0.3 10:12345 # the reader listen on port 12345, the other on the default port (3000)
+R003 reader003.domain.com         192.168.0.3  0 # this zero-interval defaults to configuration file value
 ...
 ```
 
 Each line contains:
-* the reader code (will appear in the logs)
+* the reader code (will appear in the logs and in the DB table)
 * the reader DNS name
 * the reader IP address and possibly the port (default port is 3000)
 * the pool interval, in seconds; a zero interval defaults to the value contained within the configuration file
@@ -49,27 +47,26 @@ CREATE TABLE `stamps` (
 	PRIMARY KEY (`ID`)
 );
 ```
-A user must be created. His credentials must be indicated in the connection string (see the next section).
-Obviously you can create further (nullable) columns and/or secondary-indexes on this table, according to your needs.
+A user must be created with grants to insert in the table. His credentials must be indicated in the connection string (see the next section). Obviously you can create further (nullable) columns and/or secondary-indexes on this table, according to your needs.
 
 ### Other parameters
-All the other parameters are contained in the configuration file, called `OpenKonnectService.exe.config`. It is an XML file. The main configuration parameters are contained in the following section, with some reasonable defaults.
+All the other parameters are contained in the configuration file, called `OpenKonnectService.exe.config`. It is an XML file. The main configuration parameters are contained in the following section, containing useful comments and some reasonable defaults for each value.
 
 ```xml
 <appSettings>
     <!-- connection string of the DB where stamps are stored -->
     <add key="ConnectionString" value="Server=localhost;Database=openkonnect;Uid=openkonnect;Pwd=openkonnect;" />
 
-    <!-- if true, card-readers are not actually contacted, but fake stamps are returned. Useful to test
-    just the db connection. -->
+    <!-- if true, card-readers are not actually contacted (they can even not exist), but fake stamps are returned.
+    Useful to test just the db connection. -->
     <add key="FakeMode" value="true" />
 
     <!-- if true, only the first stamp stored in a card-reader is returned on each job execution,
-    and it is not deleted. Useful to test the application without altering card reader state. 
-    Otherwise, all available stamps are fetched and deleted from the reader on each connection. -->
+    and it is not deleted from the reader. Useful to test the application without altering card reader state. 
+    Otherwise, all available stamps are fetched and deleted from the reader on each job execution. -->
     <add key="SafeMode" value="true" />
 
-    <!-- card reader configuration file name -->
+    <!-- card reader configuration filename -->
     <add key="CardReaderConfigurationFileName" value="openkonnect.conf" />
 
     <!-- interval in seconds between two garbage collection cycles -->
@@ -82,7 +79,7 @@ All the other parameters are contained in the configuration file, called `OpenKo
     <!-- if true card-reader clocks are set through a scheduled job -->
     <add key="UpdateClocks_Active" value="true" />
 
-    <!-- time of day (format: hhmmss) when card-reader clocks are updated the first time -->
+    <!-- time of day (format: hhmmss) when card-reader clocks are updated -->
     <add key="UpdateClocks_TimeOfDay" value="020200" />
 
     <!-- interval in seconds between two card-reader clocks update -->
@@ -99,9 +96,9 @@ All the other parameters are contained in the configuration file, called `OpenKo
 If `FakeMode` is true, readers configuration is loaded from configuration file, but readers are never actually contacted. Fake stamps are returned and stored into the database. This mode allows to test the application (expecially the database connection) without involving actual readers.
 
 #### SafeMode
-If `FakeMode` is false and `SafeMode` is true, configured reader are contacted through a TCP connection, but only the first stamp stored in the reader is read and isn't deleted. This mode allows to test the whole system without altering readers state.
+If `FakeMode` is false and `SafeMode` is true, configured reader are contacted through the network, but only the first stamp stored in the reader is read and isn't deleted from the reader. This mode allows to test the whole system without altering readers state.
 
-Obviously, in prodution, `FakeMode` and `SafeMode` have to be set to false.
+Obviously, in production, `FakeMode` and `SafeMode` have to be set to false.
 
 ## How it works
 When the service is started, it instantiates a scheduled job for each reader. Jobs are executed at regular time intervals, but the start time of each job is selected randomically, in order to spread network traffic across the timeline, so avoiding network spikes.
@@ -118,7 +115,7 @@ During the execution, the service logs about every important information:
 * service stop/start
 * number of instantiated jobs
 
-The log is configured in the `log4net` section within the configuration file `OpenKonnectService.exe.config`. By default, log can reach a maximum size of 10MB. Then, they rotate and a new file is created. A maximum of 100 files is retained. After waiting enough time, you will find the following log files:
+The log is configured in the `log4net` section within the configuration file `OpenKonnectService.exe.config`. By default, log can reach a maximum size of 10MB. Then, it rotates and a new file is created. A maximum of 100 files is retained. After waiting enough time, you will find the following log files:
 ```
 openkonnect.log
 openkonnect.log.1
@@ -133,6 +130,8 @@ By default, the logfile is saved at the following path: `%APPDATA%\openkonnect\o
 
 ## Troubleshooting
 Sometimes, the service shows an error just after it is started. Often, this is due to lack of authorizations and can be solved configuring a specific user executing the service.
+
+Should the software raise an exception during the connection with readers, perhaps readers are not configured as expected. In this case it could be necessary to tune the protocol by modifying the code and recompiling the application.
 
 ## Source code
 The source code is available at https://github.com/supix/openkonnect. OpenKonnect is written in C# language using Visual Studio CE 2013 and the following contributions from the open-source world:
